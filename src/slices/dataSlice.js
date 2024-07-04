@@ -3,7 +3,8 @@ import{getPokemon,getPokemonDetails}from '../api';
 import{ setLoading } from './uiSlice';
 
 const initialState = {
-    pokemons: []
+    pokemons: [],
+    search: []
 }
 
 export const fetchPokemonsWithDetails = createAsyncThunk(
@@ -11,12 +12,12 @@ export const fetchPokemonsWithDetails = createAsyncThunk(
     async (_, {dispatch}) => {
         dispatch(setLoading(true));
         const pokemonsRes = await getPokemon()
-        console.log("pokemonsRes:",pokemonsRes)
         const pokemonsDetailed = await Promise.all(pokemonsRes.map((pokemon) => getPokemonDetails(pokemon)))
         dispatch(setPokemons(pokemonsDetailed))
         dispatch(setLoading(false));
     }
 );
+
 export const dataSlice = createSlice({
     name: 'data',
     initialState,
@@ -33,9 +34,11 @@ export const dataSlice = createSlice({
                 const isFavorite = state.pokemons[currentPokemonIndex].favorite
                 state.pokemons[currentPokemonIndex].favorite = !isFavorite
             }
+        },
+        setSearch: (state, action) => {
+            state.search = state.pokemons.filter(poke => poke.name.includes(action.payload))
         }
     ,},});
 
-export const { setPokemons, setFavorite } = dataSlice.actions
-console.log('🚀 ~ file: dataSlice.js ~ line 29 ~ dataSlice',dataSlice);
+export const { setPokemons, setFavorite, setSearch } = dataSlice.actions
 export default dataSlice.reducer
